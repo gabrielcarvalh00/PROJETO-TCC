@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Leitor de Metadados</title>
+  <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+  <style>
+    #dropzone {
+      width: 300px;
+      height: 200px;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="dropzone">Arraste a imagem aqui</div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none" />
+  <pre id="output"></pre>
+
+  <script>
+    let latitude = null;
+    let longitude = null;
+
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'blue';
+    });
+
+    dropzone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropzone.style.borderColor = '#ccc';
+    });
+
+    dropzone.addEventListener('drop', async e => {
+      e.preventDefault();
+      dropzone.style.borderColor = '#ccc';
+      const file = e.dataTransfer.files[0];
+      if (file) await handleImage(file);
+    });
+
+    fileInput.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (file) await handleImage(file);
+    });
+
+    // --- Sua função handleImage DEVE estar aqui dentro do <script> ---
+    async function handleImage(file) {
+      output.textContent = 'Lendo metadados...';
+      try {
+        const metadata = await exifr.parse(file, { iptc: true, exif: true });
+        output.textContent = JSON.stringify(metadata, null, 2);
+
+        if (metadata && typeof metadata.latitude === 'number' && typeof metadata.longitude === 'number') {
+          
+          latitude = metadata.latitude;
+          longitude = metadata.longitude;
+
+          console.log('Latitude:', latitude);
+          console.log('Longitude:', longitude);
+
+          // Requisição fetch movida para cá
+          fetch('/rota', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude })
+          })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`Erro HTTP! Status: ${res.status}`);
+            }
+            return res.json();
+          })
+          .then(data => console.log('Resposta do servidor:', data))
+          .catch(err => console.error('Erro ao enviar dados para o servidor:', err));
+
+        } else {
+          latitude = null;
+          longitude = null;
+          console.log('Lat/Long não encontrados');
+        }
+
+      } catch (err) {
+        output.textContent = 'Erro ao ler metadados: ' + err;
+      }
+    }
+  </script>
+
+  
+</body>
+</html>

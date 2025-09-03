@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapa com Leaflet - Captura de Coordenadas</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS e JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    #map {
+      height: 500px;
+      margin-bottom: 20px;
+    }
+    #resultados {
+      font-family: Arial, sans-serif;
+    }
+    #resultados div {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mapa com Captura de Coordenadas</h1>
+  <div id="map"></div>
+  <div id="resultados"></div>
+
+  <script>
+    // Coordenadas iniciais
+    var latitude = -14.806849833333334;
+    var longitude = -39.28486733333333;
+    var delta = 1.00;
+
+    // Inicializa o mapa
+    var map = L.map('map').setView([latitude, longitude], 13);
+
+    // Camada base do mapa
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Marcador no ponto central
+    L.marker([latitude, longitude]).addTo(map)
+      .bindPopup('Ponto inicial')
+      .openPopup();
+
+    // Captura de coordenadas ao clicar no mapa
+    var latClicked, lngClicked;
+    var latMin, latMax, lngMin, lngMax;
+
+    map.on('click', function(e) {
+      latClicked = e.latlng.lat;
+      lngClicked = e.latlng.lng;
+
+      latMin = latClicked - delta;
+      latMax = latClicked + delta;
+      lngMin = lngClicked - delta;
+      lngMax = lngClicked + delta;
+
+      console.log("Fazendo requisição para a nova rota com os limites...");
+      fetch(`/imagens-por-area?latMin=${latMin}&latMax=${latMax}&lngMin=${lngMin}&lngMax=${lngMax}`)
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(error => {
+              throw new Error(error.message || 'Erro ao carregar dados');
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("Imagens encontradas na área:", data);
+          const resultadoDiv = document.getElementById("resultados");
+          resultadoDiv.innerHTML = "<h3>Resultados encontrados:</h3>";
+
+          if (data.length === 0) {
+            resultadoDiv.innerHTML += "<p>Nenhum resultado encontrado.</p>";
+          } else {
+            data.forEach(imagem => {
+              resultadoDiv.innerHTML += `
+                <div>
+                  <strong>ID:</strong> ${imagem.id}<br>
+                  <strong>Latitude:</strong> ${imagem.location_lat}<br>
+                  <strong>Longitude:</strong> ${imagem.location_lon}<br>
+                  <strong>Descrição:</strong> ${imagem.description || 'Sem descrição'}<br>
+                </div>
+              `;
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Erro ao buscar imagens por área:", error);
+          alert("Erro ao buscar imagens: " + error.message);
+        });
+
+      console.log("Latitude clicada:", latClicked);
+      console.log("Longitude clicada:", lngClicked);
+      console.log("LatMin:", latMin, "LatMax:", latMax);
+      console.log("LngMin:", lngMin, "LngMax:", lngMax);
+
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent("Coordenadas: " + latClicked.toFixed(5) + ", " + lngClicked.toFixed(5))
+        .openOn(map);
+    });
+  </script>
+
+</body>
+</html>
