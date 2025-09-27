@@ -16,6 +16,7 @@ con.connect((err) => {
     console.log('Conexão bem-sucedida ao banco de dados');
 });
 
+//
 const app = express();
 app.use(express.json());
 app.use(express.static('./public'));
@@ -93,7 +94,7 @@ app.post('/rota', (req, res) => {
     }
 });
 
-
+//
 app.get('/imagens-por-area', (req, res) => {
 
     const { latMin, latMax, lngMin, lngMax } = req.query;
@@ -130,8 +131,6 @@ app.get('/imagens-por-area', (req, res) => {
         res.status(200).json(results);
     });
 });
-
-
 
 
 app.listen(3030, () => {
