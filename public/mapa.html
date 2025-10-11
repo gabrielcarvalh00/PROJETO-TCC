@@ -30,6 +30,7 @@
   <h1>Mapa com Captura de Coordenadas</h1>
   <div id="map"></div>
   <div id="resultados"></div>
+ 
 
   <script>
     // Coordenadas iniciais
@@ -87,7 +88,9 @@
                   <strong>ID:</strong> ${imagem.id}<br>
                   <strong>Latitude:</strong> ${imagem.location_lat}<br>
                   <strong>Longitude:</strong> ${imagem.location_lon}<br>
-                  <strong>Descrição:</strong> ${imagem.description || 'Sem descrição'}<br>
+                  <strong>Endereço carteira:</strong> ${imagem.AndresWallet}<br>
+                 <!-- <strong>Descrição:</strong> ${imagem.description || 'Sem descrição'}<br> -->
+                   <button onclick="window.location.href='Sellorbuy.html?wallet=${imagem.AndresWallet}'" >comprar</button>
                 </div>
               `;
             });

@@ -1,0 +1,144 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo da página */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: linear-gradient(135deg, #2575fc, #6a11cb, #ff416c);
+  background-size: 600% 600%;
+  animation: gradientShift 15s ease infinite;
+  color: #fff;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Animação de gradiente */
+@keyframes gradientShift {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+/* Títulos e labels */
+#titulo {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* Inputs */
+input[type="text"], input[type="link"] {
+  width: 300px;
+  padding: 12px 20px;
+  border-radius: 15px;
+  border: none;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+/* Dropzone estilizado */
+#dropzone {
+  width: 400px;
+  height: 200px;
+  border: 3px dashed rgba(255,255,255,0.7);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#dropzone:hover {
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* Botão estilizado */
+button {
+  background: linear-gradient(135deg, #ff416c, #6a11cb);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 15px 40px;
+  margin: 15px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+button:hover {
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  background: linear-gradient(135deg, #6a11cb, #ff416c);
+}
+
+button:active {
+  transform: scale(0.95);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+/* Output para metadados */
+pre#output {
+  background: rgba(0,0,0,0.3);
+  padding: 15px;
+  border-radius: 15px;
+  width: 400px;
+  overflow-x: auto;
+  text-align: left;
+  font-size: 0.95rem;
+  margin-top: 20px;
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Responsividade */
+@media (max-width: 500px) {
+  input[type="text"], input[type="link"], #dropzone, pre#output {
+    width: 90%;
+  }
+  
+  #titulo {
+    font-size: 1.5rem;
+  }
+  
+  button {
+    padding: 12px 25px;
+    font-size: 1rem;
+  }
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Faz o botão voltar sempre por último */
+section:last-of-type {
+  order: 99; /* maior valor = aparece por último */
+}

@@ -1,0 +1,88 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo da página */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #6a11cb, #2575fc, #ff416c);
+  background-size: 600% 600%;
+  animation: gradientShift 15s ease infinite;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Animação de gradiente */
+@keyframes gradientShift {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+/* Título / label */
+label {
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+}
+
+/* Botões estilizados */
+button {
+  background: linear-gradient(135deg, #ff416c, #6a11cb);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 15px 40px;
+  margin: 15px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Hover nos botões */
+button:hover {
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  background: linear-gradient(135deg, #6a11cb, #ff416c);
+}
+
+/* Botão ativo */
+button:active {
+  transform: scale(0.95);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+/* Input / futuramente */
+input {
+  padding: 12px 20px;
+  border-radius: 15px;
+  border: none;
+  margin-top: 20px;
+  font-size: 1rem;
+}
+
+/* Responsividade simples */
+@media (max-width: 768px) {
+  label {
+    font-size: 1.5rem;
+  }
+  
+  button {
+    padding: 12px 30px;
+    font-size: 1rem;
+  }
+}

@@ -20,64 +20,40 @@ con.connect((err) => {
 const app = express();
 app.use(express.json());
 app.use(express.static('./public'));
-
-
-// Função para gerar um UUID (identificador único universal) simples para o endereço
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-
-// Função para selecionar um item aleatório de um array
-function getRandomItem(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
+app.use(express.static('./script'));
 
 
 //pega o imput da imagem e insere tabele imagem;
 app.post('/rota', (req, res) => {
     console.log("Chegou aqui na rota /rota");
 
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude , link, value, addressWallet, drone, ImageDescription} = req.body;
 
     if (latitude !== undefined && longitude !== undefined) {
-       // console.log('Dados recebidos do HTML:');
-        //console.log('Latitude:', latitude);
-        //console.log('Longitude:', longitude);
+        
+        const droneManufacturer = drone;
+        const a = ImageDescription;  
+        let imageDescription=a;
 
-        // --- VALORES ALEATÓRIOS GERADOS AQUI ---
-        const imageAddress = `/images/${generateUUID()}.jpg`; // Endereço de imagem aleatório
-        const imageDescriptions = [
-            "Vista aérea de campo verde",
-            "Detalhe de floresta amazônica",
-            "Imagem de área urbana movimentada",
-            "Área rural com rio",
-            "Ponto turístico famoso"
-        ];
-        const imageDescription = getRandomItem(imageDescriptions);
+        const sellerId = 1; 
 
-        const droneManufacturers = [
-            "DJI",
-            "Parrot",
-            "Autel Robotics",
-            "Skydio",
-            "Xiaomi"
-        ];
-        const droneManufacturer = getRandomItem(droneManufacturers);
-
-        // ATENÇÃO: seller_id deve ser um ID existente na sua tabela 'Seller'
-        // Para fins de teste, estou usando um valor fixo. Você deve ter uma forma de obter um seller_id válido.
-        const sellerId = 1; // Exemplo: Supondo que existe um seller com ID 1.
-
+        // CORREÇÃO: Incluindo 'value', 'link' e 'AndresWallet' na query SQL
         const sql = `
-            INSERT INTO Image (address, description, drone_manufacturer, location_lat, location_lon, seller_id, registrationdata)
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO Image (description, drone_manufacturer, location_lat, location_lon, seller_id, registrationdata, value, link, AndresWallet)
+            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)
         `;
 
-        con.query(sql, [imageAddress, imageDescription, droneManufacturer, latitude, longitude, sellerId], (err, result) => {
+        // CORREÇÃO: Passando 'value', 'link' e 'addressWallet' (que mapeia para AndresWallet)
+        con.query(sql, [ 
+            imageDescription, 
+            droneManufacturer, 
+            latitude, 
+            longitude, 
+            sellerId, 
+            value,        // Mapeia para o 7º '?' (value)
+            link,         // Mapeia para o 8º '?' (link)
+            addressWallet // Mapeia para o 9º '?' (AndresWallet)
+        ], (err, result) => {
             if (err) {
                 console.error('Erro ao inserir coordenadas no banco de dados:', err);
                 return res.status(500).json({ message: 'Erro ao salvar coordenadas no banco de dados.' });
@@ -136,4 +112,3 @@ app.get('/imagens-por-area', (req, res) => {
 app.listen(3030, () => {
     console.log('Servidor rodando em http://localhost:3030');
 });
-
