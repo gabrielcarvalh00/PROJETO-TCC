@@ -108,6 +108,35 @@ app.get('/imagens-por-area', (req, res) => {
     });
 });
 
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  con.query('SELECT * FROM usuarios WHERE email = ? AND password = ?', [email, password], (err, rows) => {
+    if (err) return res.status(500).json({ sucesso: false });
+    if (rows.length > 0) {
+      res.json({ sucesso: true });
+    } else {
+      res.json({ sucesso: false, mensagem: 'Email ou senha inválidos' });
+    }
+  });
+});
+
+app.post('/cadastro', (req, res) => {
+  const { email, password } = req.body;
+
+  con.query('SELECT * FROM usuarios WHERE email = ?', [email], (err, rows) => {
+    if (err) return res.status(500).json({ sucesso: false });
+
+    if (rows.length > 0) {
+      return res.json({ sucesso: false, mensagem: 'Email já cadastrado!' });
+    }
+
+    con.query('INSERT INTO usuarios (email, password) VALUES (?, ?)', [email, password], (err) => {
+      if (err) return res.status(500).json({ sucesso: false });
+      res.json({ sucesso: true });
+    });
+  });
+});
+
 
 app.listen(3030, () => {
     console.log('Servidor rodando em http://localhost:3030');
