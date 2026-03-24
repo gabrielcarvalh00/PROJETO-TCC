@@ -57,11 +57,13 @@ async function handleImage(file) {
       const addressWallet=document.getElementById('addressWallet').value;
       const value=document.getElementById('value').value;
       
-      fetch('/rota', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({latitude, longitude, link, value, addressWallet, drone, ImageDescription})
-      })
+     const usuario_id = localStorage.getItem('usuario_id');
+
+fetch('/rota', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({latitude, longitude, link, value, addressWallet, drone, ImageDescription, usuario_id})
+})
       .then(res => {
         if (!res.ok) {
           throw new Error(`Erro HTTP! Status: ${res.status}`);

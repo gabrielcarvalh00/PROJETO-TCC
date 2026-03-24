@@ -27,33 +27,22 @@ app.use(express.static('./script'));
 app.post('/rota', (req, res) => {
     console.log("Chegou aqui na rota /rota");
 
-    const { latitude, longitude , link, value, addressWallet, drone, ImageDescription} = req.body;
-
-    if (latitude !== undefined && longitude !== undefined) {
+   const { latitude, longitude, link, value, addressWallet, drone, ImageDescription, usuario_id } = req.body;
+  
+   if (latitude !== undefined && longitude !== undefined) {
         
         const droneManufacturer = drone;
         const a = ImageDescription;  
         let imageDescription=a;
 
-        const sellerId = 1; 
 
         // CORREÇÃO: Incluindo 'value', 'link' e 'AndresWallet' na query SQL
-        const sql = `
-            INSERT INTO Image (description, drone_manufacturer, location_lat, location_lon, seller_id, registrationdata, value, link, AndresWallet)
-            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)
-        `;
+const sql = `
+    INSERT INTO Image (description, drone_manufacturer, location_lat, location_lon, registrationdata, value, link, AndresWallet, usuario_id)
+    VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)
+`;
 
-        // CORREÇÃO: Passando 'value', 'link' e 'addressWallet' (que mapeia para AndresWallet)
-        con.query(sql, [ 
-            imageDescription, 
-            droneManufacturer, 
-            latitude, 
-            longitude, 
-            sellerId, 
-            value,        // Mapeia para o 7º '?' (value)
-            link,         // Mapeia para o 8º '?' (link)
-            addressWallet // Mapeia para o 9º '?' (AndresWallet)
-        ], (err, result) => {
+con.query(sql, [imageDescription, droneManufacturer, latitude, longitude, value, link, addressWallet, usuario_id], (err, result) => {
             if (err) {
                 console.error('Erro ao inserir coordenadas no banco de dados:', err);
                 return res.status(500).json({ message: 'Erro ao salvar coordenadas no banco de dados.' });
@@ -113,7 +102,7 @@ app.post('/login', (req, res) => {
   con.query('SELECT * FROM usuarios WHERE email = ? AND password = ?', [email, password], (err, rows) => {
     if (err) return res.status(500).json({ sucesso: false });
     if (rows.length > 0) {
-      res.json({ sucesso: true });
+      res.json({ sucesso: true, id: rows[0].idusuarios });
     } else {
       res.json({ sucesso: false, mensagem: 'Email ou senha inválidos' });
     }
@@ -135,6 +124,10 @@ app.post('/cadastro', (req, res) => {
       res.json({ sucesso: true });
     });
   });
+});
+
+app.get('/', (req, res) => {
+  res.redirect('/cadastro.html');
 });
 
 

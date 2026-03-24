@@ -72,10 +72,10 @@ async function connectWallet() {
 
 
 async function buy() {
-	//destinatario=urlParams.get('wallet');
-	destinatario="0x82231E3281B09413363485311DF299F2833782D8"
-	//alert(destinatario)
-	
+  const urlParams = new URLSearchParams(window.location.search);
+  destinatario = urlParams.get('wallet');
+  alert(destinatario);
+
 	if (conexao) {
     const contract = new web3.eth.Contract(contractABI, contractAddress);
     try {

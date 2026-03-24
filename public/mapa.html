@@ -5,53 +5,262 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS e JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    #map {
-      height: 500px;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      width: 100%;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .hamburger {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      background: #fff;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar h2 {
+      color: #fff;
+      margin-left: 20px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    /* MENU LATERAL */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100%;
+      background: linear-gradient(180deg, #6a11cb, #2575fc);
+      z-index: 2000;
+      transition: left 0.3s ease;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar .close-btn {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
       margin-bottom: 20px;
     }
-    #resultados {
-      font-family: Arial, sans-serif;
+
+    .sidebar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 14px 18px;
+      border-radius: 12px;
+      transition: background 0.3s;
+      display: block;
     }
-    #resultados div {
-      background: #f9f9f9;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
+
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .sidebar a.sair {
+      margin-top: auto;
+      color: #ff6b6b;
+    }
+
+    /* OVERLAY */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 1500;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    #map {
+      height: calc(100vh - 58px);
+    }
+
+    #painel-resultados {
+      position: fixed;
+      top: 58px;
+      right: -350px;
+      width: 320px;
+      height: calc(100vh - 58px);
+      background: rgba(255,255,255,0.97);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+      padding: 20px 15px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #painel-resultados.open {
+      right: 0;
+    }
+
+    #painel-resultados h3 {
+      font-size: 1rem;
+      color: #6a11cb;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .fechar-painel {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .card-imagem {
+      background: #f4f4f4;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-left: 4px solid #6a11cb;
+    }
+
+    .card-imagem p {
+      font-size: 0.85rem;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .card-imagem button {
+      margin-top: 8px;
+      background: linear-gradient(135deg, #ff416c, #6a11cb);
+      border: none;
+      border-radius: 20px;
+      color: #fff;
+      font-weight: bold;
+      padding: 8px 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .card-imagem button:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
 
-  <h1>Mapa com Captura de Coordenadas</h1>
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <h2>Mapa</h2>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- MENU LATERAL -->
+  <div class="sidebar" id="sidebar">
+    <button class="close-btn" id="closeBtn">&times;</button>
+    <a href="#">Minhas Imagens</a>
+    <a href="VenderImage.html">Vender Imagem</a>
+    <a href="#" class="sair">Sair</a>
+  </div>
+
   <div id="map"></div>
-  <div id="resultados"></div>
- 
+
+  <!-- PAINEL DE RESULTADOS -->
+  <div id="painel-resultados">
+    <button class="fechar-painel" id="fecharPainel">&times;</button>
+    <h3>Resultados</h3>
+    <div id="resultados"></div>
+  </div>
 
   <script>
-    // Coordenadas iniciais
+    // Menu hamburguer
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+
+    // Fechar painel
+    document.getElementById('fecharPainel').addEventListener('click', () => {
+      document.getElementById('painel-resultados').classList.remove('open');
+    });
+
+    // Mapa
     var latitude = -14.806849833333334;
     var longitude = -39.28486733333333;
     var delta = 1.00;
 
-    // Inicializa o mapa
     var map = L.map('map').setView([latitude, longitude], 13);
 
-    // Camada base do mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Marcador no ponto central
     L.marker([latitude, longitude]).addTo(map)
       .bindPopup('Ponto inicial')
       .openPopup();
 
-    // Captura de coordenadas ao clicar no mapa
     var latClicked, lngClicked;
     var latMin, latMax, lngMin, lngMax;
 
@@ -64,7 +273,6 @@
       lngMin = lngClicked - delta;
       lngMax = lngClicked + delta;
 
-      console.log("Fazendo requisição para a nova rota com os limites...");
       fetch(`/imagens-por-area?latMin=${latMin}&latMax=${latMax}&lngMin=${lngMin}&lngMax=${lngMax}`)
         .then(response => {
           if (!response.ok) {
@@ -75,36 +283,32 @@
           return response.json();
         })
         .then(data => {
-          console.log("Imagens encontradas na área:", data);
           const resultadoDiv = document.getElementById("resultados");
-          resultadoDiv.innerHTML = "<h3>Resultados encontrados:</h3>";
+          const painel = document.getElementById("painel-resultados");
+
+          resultadoDiv.innerHTML = "";
 
           if (data.length === 0) {
-            resultadoDiv.innerHTML += "<p>Nenhum resultado encontrado.</p>";
+            resultadoDiv.innerHTML = "<p style='color:#999;font-size:0.9rem'>Nenhuma imagem encontrada nessa área.</p>";
           } else {
             data.forEach(imagem => {
               resultadoDiv.innerHTML += `
-                <div>
-                  <strong>ID:</strong> ${imagem.id}<br>
-                  <strong>Latitude:</strong> ${imagem.location_lat}<br>
-                  <strong>Longitude:</strong> ${imagem.location_lon}<br>
-                  <strong>Endereço carteira:</strong> ${imagem.AndresWallet}<br>
-                 <!-- <strong>Descrição:</strong> ${imagem.description || 'Sem descrição'}<br> -->
-                   <button onclick="window.location.href='Sellorbuy.html?wallet=${imagem.AndresWallet}'" >comprar</button>
+                <div class="card-imagem">
+                  <p><strong>ID:</strong> ${imagem.id}</p>
+                  <p><strong>Lat:</strong> ${imagem.location_lat} | <strong>Lon:</strong> ${imagem.location_lon}</p>
+                  <p><strong>Carteira:</strong> ${imagem.AndresWallet}</p>
+                  <button onclick="window.location.href='Sellorbuy.html?wallet=${imagem.AndresWallet}'">Comprar</button>
                 </div>
               `;
             });
           }
+
+          painel.classList.add('open');
         })
         .catch(error => {
           console.error("Erro ao buscar imagens por área:", error);
           alert("Erro ao buscar imagens: " + error.message);
         });
-
-      console.log("Latitude clicada:", latClicked);
-      console.log("Longitude clicada:", lngClicked);
-      console.log("LatMin:", latMin, "LatMax:", latMax);
-      console.log("LngMin:", lngMin, "LngMax:", lngMax);
 
       L.popup()
         .setLatLng(e.latlng)

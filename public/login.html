@@ -136,13 +136,14 @@
         body: JSON.stringify({ email, password: senha })
       })
       .then(res => res.json())
-      .then(data => {
-        if (data.sucesso) {
-          window.location.href = 'mapa.html';
-        } else {
-          alert(data.mensagem || 'Email ou senha inválidos');
-        }
-      })
+   .then(data => {
+  if (data.sucesso) {
+    localStorage.setItem('usuario_id', data.id);
+    window.location.href = 'mapa.html';
+  } else {
+    alert(data.mensagem || 'Email ou senha inválidos');
+  }
+})
       .catch(err => console.error('Erro:', err));
     });
   </script>
