@@ -3,7 +3,7 @@ let web3; // Variável global para a instância do Web3
 let destinatario;
 
 // Guarda o endereco do meu contrato na blockchain
-const contractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138";
+const contractAddress = "0xb9beFF0D202De9432834408042e6e91692E0421d";
 
 // Arquivo json que recebe o meu contrato que esta na blockchain
 const contractABI = [ 
@@ -49,27 +49,28 @@ const contractABI = [
 
 ] ;
 
-
 // A conexao da aplicacao web com a carteira da metamask;
 async function connectWallet() {
-
   if (window.ethereum) {
     try {
+
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0xaa36a7' }],
+      });
+
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      // Se a conexão for bem-sucedida, inicializa o Web3 e salva a conexao
+
       web3 = new Web3(window.ethereum);
       conexao = accounts;
-      console.log('Carteira conectada! Contas:', conexao);
-      alert('Carteira conectada!');
+
+      alert('Carteira conectada na Sepolia!');
+
     } catch (error) {
-      console.error('Erro ao conectar a carteira:', error);
-      alert('Erro ao conectar a carteira. Por favor, tente novamente.');
+      console.error(error);
     }
-  } else {
-    alert('Por favor, instale a MetaMask!');
   }
 }
-
 
 async function buy() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -82,7 +83,7 @@ async function buy() {
       const transaction = await contract.methods.enviarEther(destinatario).send({ 
         from: conexao[0], 
         // Valor modificado para 1 Wei (a menor unidade)
-        value: web3.utils.toWei('0.1', 'ether') 
+        value: web3.utils.toWei('0.0001', 'ether') 
       });
            
       console.log('Transação enviada:', transaction.transactionHash);
