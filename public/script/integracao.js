@@ -87,7 +87,21 @@ async function buy() {
       });
            
       console.log('Transação enviada:', transaction.transactionHash);
+
       alert('Compra concluída!');
+
+	  const image_id = new URLSearchParams(window.location.search).get('image_id');
+	  const link = new URLSearchParams(window.location.search).get('link');
+	  const usuario_id = localStorage.getItem('usuario_id');
+	  console.log('image_id:', image_id, 'link:', link, 'usuario_id:', usuario_id);
+	  
+
+fetch('/registrar-compra', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ image_id, usuario_id, link })
+});
+
     } catch (error) {
       // 1. Imprime o erro completo no console para debug
       console.error('Erro detalhado da transação:', error);

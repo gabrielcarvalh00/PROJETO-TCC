@@ -11,11 +11,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-    }
+    body { font-family: 'Segoe UI', sans-serif; }
 
-    /* NAVBAR */
     .navbar {
       width: 100%;
       background: linear-gradient(135deg, #6a11cb, #2575fc);
@@ -49,7 +46,6 @@
       letter-spacing: 1px;
     }
 
-    /* MENU LATERAL */
     .sidebar {
       position: fixed;
       top: 0;
@@ -65,9 +61,7 @@
       gap: 15px;
     }
 
-    .sidebar.open {
-      left: 0;
-    }
+    .sidebar.open { left: 0; }
 
     .sidebar .close-btn {
       align-self: flex-end;
@@ -88,18 +82,12 @@
       border-radius: 12px;
       transition: background 0.3s;
       display: block;
+      cursor: pointer;
     }
 
-    .sidebar a:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    .sidebar a:hover { background: rgba(255,255,255,0.2); }
+    .sidebar a.sair { color: #ff6b6b; }
 
-    .sidebar a.sair {
-      margin-top: auto;
-      color: #ff6b6b;
-    }
-
-    /* OVERLAY */
     .overlay {
       display: none;
       position: fixed;
@@ -109,13 +97,9 @@
       z-index: 1500;
     }
 
-    .overlay.show {
-      display: block;
-    }
+    .overlay.show { display: block; }
 
-    #map {
-      height: calc(100vh - 58px);
-    }
+    #map { height: calc(100vh - 58px); }
 
     #painel-resultados {
       position: fixed;
@@ -129,19 +113,33 @@
       transition: right 0.3s ease;
       overflow-y: auto;
       padding: 20px 15px;
-      font-family: 'Segoe UI', sans-serif;
     }
 
-    #painel-resultados.open {
-      right: 0;
+    #painel-resultados.open { right: 0; }
+
+    #painel-minhas-imagens {
+      position: fixed;
+      top: 58px;
+      left: -350px;
+      width: 320px;
+      height: calc(100vh - 58px);
+      background: rgba(255,255,255,0.97);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      padding: 20px 15px;
     }
 
-    #painel-resultados h3 {
+    #painel-minhas-imagens.open { left: 0; }
+
+    .painel-titulo {
       font-size: 1rem;
       color: #6a11cb;
       margin-bottom: 15px;
       text-transform: uppercase;
       letter-spacing: 1px;
+      font-weight: bold;
     }
 
     .fechar-painel {
@@ -169,6 +167,19 @@
       margin-bottom: 5px;
     }
 
+    .card-imagem a {
+      display: block;
+      margin-top: 8px;
+      background: linear-gradient(135deg, #ff416c, #6a11cb);
+      border-radius: 20px;
+      color: #fff;
+      font-weight: bold;
+      padding: 8px 20px;
+      font-size: 0.9rem;
+      text-align: center;
+      text-decoration: none;
+    }
+
     .card-imagem button {
       margin-top: 8px;
       background: linear-gradient(135deg, #ff416c, #6a11cb);
@@ -182,45 +193,42 @@
       width: 100%;
     }
 
-    .card-imagem button:hover {
-      opacity: 0.9;
-    }
+    .card-imagem button:hover, .card-imagem a:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <div class="navbar">
     <div class="hamburger" id="hamburger">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </div>
     <h2>Mapa</h2>
   </div>
 
-  <!-- OVERLAY -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- MENU LATERAL -->
   <div class="sidebar" id="sidebar">
     <button class="close-btn" id="closeBtn">&times;</button>
-    <a href="#">Minhas Imagens</a>
+    <a id="btnMinhasImagens">Minhas Imagens</a>
     <a href="VenderImage.html">Vender Imagem</a>
-    <a href="#" class="sair">Sair</a>
+    <a href="#" class="sair" id="btnSair">Sair</a>
   </div>
 
   <div id="map"></div>
 
-  <!-- PAINEL DE RESULTADOS -->
   <div id="painel-resultados">
     <button class="fechar-painel" id="fecharPainel">&times;</button>
-    <h3>Resultados</h3>
+    <h3 class="painel-titulo">Resultados</h3>
     <div id="resultados"></div>
   </div>
 
+  <div id="painel-minhas-imagens">
+    <button class="fechar-painel" id="fecharMinhasImagens">&times;</button>
+    <h3 class="painel-titulo">Minhas Imagens</h3>
+    <div id="lista-minhas-imagens"></div>
+  </div>
+
   <script>
-    // Menu hamburguer
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
@@ -241,12 +249,53 @@
       overlay.classList.remove('show');
     });
 
-    // Fechar painel
     document.getElementById('fecharPainel').addEventListener('click', () => {
       document.getElementById('painel-resultados').classList.remove('open');
     });
 
-    // Mapa
+    document.getElementById('fecharMinhasImagens').addEventListener('click', () => {
+      document.getElementById('painel-minhas-imagens').classList.remove('open');
+    });
+
+    document.getElementById('btnSair').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('btnMinhasImagens').addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+
+      const usuario_id = localStorage.getItem('usuario_id');
+      const painel = document.getElementById('painel-minhas-imagens');
+      const lista = document.getElementById('lista-minhas-imagens');
+
+      lista.innerHTML = '<p style="color:#999;font-size:0.9rem">Carregando...</p>';
+      painel.classList.add('open');
+
+      fetch(`/minhas-imagens?usuario_id=${usuario_id}`)
+        .then(res => res.json())
+        .then(data => {
+          lista.innerHTML = '';
+          if (data.length === 0) {
+            lista.innerHTML = '<p style="color:#999;font-size:0.9rem">Nenhuma imagem comprada ainda.</p>';
+          } else {
+            data.forEach(img => {
+              lista.innerHTML += `
+                <div class="card-imagem">
+                  <p><strong>ID:</strong> ${img.image_id}</p>
+                  <p><strong>Comprado em:</strong> ${new Date(img.data_compra).toLocaleDateString('pt-BR')}</p>
+                  <a href="${img.link}" target="_blank">Ver Imagem</a>
+                </div>
+              `;
+            });
+          }
+        })
+        .catch(() => {
+          lista.innerHTML = '<p style="color:red;font-size:0.9rem">Erro ao carregar imagens.</p>';
+        });
+    });
+
     var latitude = -14.806849833333334;
     var longitude = -39.28486733333333;
     var delta = 1.00;
@@ -261,31 +310,22 @@
       .bindPopup('Ponto inicial')
       .openPopup();
 
-    var latClicked, lngClicked;
-    var latMin, latMax, lngMin, lngMax;
-
     map.on('click', function(e) {
-      latClicked = e.latlng.lat;
-      lngClicked = e.latlng.lng;
-
-      latMin = latClicked - delta;
-      latMax = latClicked + delta;
-      lngMin = lngClicked - delta;
-      lngMax = lngClicked + delta;
+      const latClicked = e.latlng.lat;
+      const lngClicked = e.latlng.lng;
+      const latMin = latClicked - delta;
+      const latMax = latClicked + delta;
+      const lngMin = lngClicked - delta;
+      const lngMax = lngClicked + delta;
 
       fetch(`/imagens-por-area?latMin=${latMin}&latMax=${latMax}&lngMin=${lngMin}&lngMax=${lngMax}`)
         .then(response => {
-          if (!response.ok) {
-            return response.json().then(error => {
-              throw new Error(error.message || 'Erro ao carregar dados');
-            });
-          }
+          if (!response.ok) return response.json().then(error => { throw new Error(error.message); });
           return response.json();
         })
         .then(data => {
           const resultadoDiv = document.getElementById("resultados");
           const painel = document.getElementById("painel-resultados");
-
           resultadoDiv.innerHTML = "";
 
           if (data.length === 0) {
@@ -297,12 +337,11 @@
                   <p><strong>ID:</strong> ${imagem.id}</p>
                   <p><strong>Lat:</strong> ${imagem.location_lat} | <strong>Lon:</strong> ${imagem.location_lon}</p>
                   <p><strong>Carteira:</strong> ${imagem.AndresWallet}</p>
-                  <button onclick="window.location.href='Sellorbuy.html?wallet=${imagem.AndresWallet}'">Comprar</button>
+                  <button onclick="window.location.href='Sellorbuy.html?wallet=${imagem.AndresWallet}&image_id=${imagem.id}&link=${imagem.link}'">Comprar</button>
                 </div>
               `;
             });
           }
-
           painel.classList.add('open');
         })
         .catch(error => {

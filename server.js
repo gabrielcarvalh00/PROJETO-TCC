@@ -131,6 +131,30 @@ app.get('/', (req, res) => {
 });
 
 
+app.post('/registrar-compra', (req, res) => {
+  const { image_id, usuario_id, link } = req.body;
+  con.query(
+    'INSERT INTO Image_compradas (image_id, usuario_id, link) VALUES (?, ?, ?)',
+    [image_id, usuario_id, link],
+    (err) => {
+      if (err) return res.status(500).json({ sucesso: false });
+      res.json({ sucesso: true });
+    }
+  );
+});
+
+app.get('/minhas-imagens', (req, res) => {
+  const { usuario_id } = req.query;
+  con.query(
+    'SELECT * FROM Image_compradas WHERE usuario_id = ?',
+    [usuario_id],
+    (err, results) => {
+      if (err) return res.status(500).json({ sucesso: false });
+      res.json(results);
+    }
+  );
+});
+
 app.listen(3030, () => {
     console.log('Servidor rodando em http://localhost:3030');
 });
